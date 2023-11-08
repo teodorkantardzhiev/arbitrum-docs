@@ -1,9 +1,49 @@
+import {
+  TransformComponent,
+  TransformWrapper,
+  KeepScale,
+} from "react-zoom-pan-pinch";
+import Diagram from "./assets/diagram.jpg";
+
 # The Sequencer and Censorship Resistance
 
 The Sequencer is a specially designated Arbitrum full node which, under normal conditions, is responsible for submitting users’ transactions onto L1. In principle, a chain’s Sequencer can take different forms; as [Arbitrum One currently stands](https://docs.arbitrum.foundation/state-of-progressive-decentralization), the Sequencer is a single, centralized entity; eventually, sequencing affordances could be given to a distributed committee of sequencers which come to consensus on ordering. However, regardless of its form, the Sequencer has a fundamental limitation that doesn’t apply to any other part of the system: it must operate under its own security assumptions; i.e., it can’t, in principle, derive security directly from layer 1. This brings up the question of how Arbitrum Rollup maintains its claim to censorship resistance when-and-if the Sequencer misbehaves.
 
 Here we will describe the mechanics of how the Sequencer typically operates, and how any user can bypass the Sequencer entirely to submit any Arbitrum transaction (including one that, say, initiates an L2 to L1 message to withdraw funds) directly from layer 1. Thus mechanism thereby preserves censorship resistance even if the Sequencer is being completely unresponsive or even malicious.
 
+<div  style={{position:"sticky", top:"20px"}}>
+<TransformWrapper maxScale={100} >
+    {({ zoomIn, zoomOut, centerView, resetTransform }) => (
+      <>
+
+  <div>
+    <button type="button" onClick={() => zoomIn()}>
+      Zoom In +
+    </button>
+    <button type="button" onClick={() => zoomOut()}>
+      Zoom Out -
+    </button>
+    <button type="button" onClick={() => resetTransform()}>
+      Reset
+    </button>
+    <button type="button" onClick={() => centerView()}>
+      Center
+    </button>
+  </div>
+  <TransformComponent
+    wrapperStyle={{
+      width: "100%",
+      height: "500px",
+      maxWidth: "100%",
+      maxHeight: "calc(100vh - 50px)",
+    }}
+  >
+    <img style={{ width: "100vw" }} src={Diagram} alt="" />
+  </TransformComponent>
+  </>
+      )}
+</TransformWrapper>
+</div>
 ## The Core Inbox
 
 When we talk about “submitting a transaction into an Arbitrum chain,” we’re talking about getting it included into the chain’s core Inbox, represented by the `sequencerInboxAccs` byte array in `Bridge`. Once transactions are included in the core Inbox, their ordering is fixed, execution is fully deterministic, and we can trustlessly treat the resultant state as having L1-level finality (see “Transaction Lifecycle”). The Sequencer’s role (or lack thereof) concerns strictly what happens prior; i.e., how a transaction makes its way into the core Inbox. We’ll break down the possible routes a transaction can take into two scenarios: a well-behaved Sequencer, and a faulty Sequencer.
